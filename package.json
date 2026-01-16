@@ -1,40 +1,66 @@
 {
-  "name": "swiftlet-log",
-  "version": "1.1.0",
+  "name": "@gvray/logger",
+  "version": "1.0.0",
   "description": "Logging utility with different log levels with timestamp options.",
-  "main": "./dist/swiftlet-log.cjs.js",
-  "module": "./dist/swiftlet-log.esm.js",
-  "browser": "./dist/swiftlet-log.min.js",
-  "unpkg": "./dist/swiftlet-log.min.js",
-  "types": "./dist/swiftlet-log.d.ts",
+  "main": "./dist/gvray-logger.cjs.js",
+  "module": "./dist/gvray-logger.esm.js",
+  "browser": "./dist/gvray-logger.min.js",
+  "unpkg": "./dist/gvray-logger.min.js",
+  "types": "./dist/gvray-logger.d.ts",
   "scripts": {
     "build": "swiftlet build",
-    "build:rollup": "npx rollup -c",
-    "build:tsc": "tsc",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "prepublishOnly": "npm run build && npm run test"
+    "prepublishOnly": "npm run build && npm run test",
+    "prepare": "husky install",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "type-check": "tsc --noEmit",
+    "commit:check": "lavy commit --test",
+    "commit:config": "lavy commit --config"
   },
   "keywords": [
     "logging",
     "logger",
-    "log",
-    "swiftlet"
+    "log"
   ],
   "files": [
     "dist"
   ],
-  "author": "Gavin Birkhoff <gavinbirkhoff@gmail.com>",
+  "author": "Gavin Ray <gavray86@gmail.com>",
   "license": "MIT",
   "devDependencies": {
+    "@eslint/js": "^9.39.2",
     "@types/jest": "^29.5.12",
-    "eslint-config-lavy": "1.0.2-Alpha.1",
+    "@typescript-eslint/eslint-plugin": "^8.53.0",
+    "@typescript-eslint/parser": "^8.53.0",
+    "eslint": "^9.39.2",
+    "eslint-config-lavy": "^2.0.2",
+    "eslint-import-resolver-typescript": "^3.10.1",
+    "eslint-plugin-import": "^2.32.0",
+    "globals": "^15.15.0",
+    "husky": "^9.1.7",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
-    "lavy": "1.0.2-Alpha.0",
-    "swiftlet": "1.0.0-Alpha.4",
+    "lavy": "^2.0.6",
+    "lint-staged": "^15.5.2",
+    "prettier": "^3.8.0",
+    "swiftlet": "^1.2.2",
     "ts-jest": "^29.1.2",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  },
+  "lint-staged": {
+    "*.{ts}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
   }
 }

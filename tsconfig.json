@@ -1,28 +1,20 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "lavy/tsconfig.base.json",
   "compilerOptions": {
     "target": "ESNext",
-    "module": "ESNext",
+    "baseUrl": ".",
+    "rootDir": "src",
     "outDir": "dist",
-    "rootDir": "./",
-    "baseUrl": "./",
     "paths": {
-      "@/*": ["src/*"]
-    },
-    // "outFile": "./",
-    // "allowJs": true,
-    // "checkJs": true,
-    // "jsx": "react-jsxdev",
-    "declaration": false,
-    "declarationMap": false,
-    "sourceMap": false
-    // "downlevelIteration": true ,
-    // "importHelpers": true,
-    // "lib": [],
-    // "rootDirs": [],
-    // "typeRoots": [],
-    // "types": [],
+      "@/*": ["src/*"],
+      "@components/*": ["src/components/*"],
+      "@utils/*": ["src/utils/*"],
+      "@hooks/*": ["src/hooks/*"],
+      "@types/*": ["src/types/*"],
+      "@assets/*": ["src/assets/*"]
+    }
   },
-  // "include": [""],
-  "exclude": ["node_modules", "**/node_modules/*"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.d.ts"],
+  "exclude": ["node_modules", "dist", "build", "coverage", "**/*.spec.ts", "**/*.test.ts"]
 }

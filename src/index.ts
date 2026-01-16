@@ -1,6 +1,2 @@
-import Logger from './Logger'
-import { LogLevel, LogOptions, LogMiddleware, LogListener } from './types'
-
-export { Logger, LogLevel, LogOptions, LogMiddleware, LogListener }
-
-export default Logger
+export { default as Logger } from './Logger';
+export type { LogLevel, LogOptions, LogMiddleware, LogListener } from './types';
