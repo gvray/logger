@@ -10,7 +10,7 @@ import { formatArgs } from './utils';
 
 class Logger {
   private logLevel: LogLevel;
-  private namespace?: string;
+  private namespace: string | undefined;
   private colorsEnabled: boolean;
   private timestampFormat: TimestampFormat | false;
   private depth: number;

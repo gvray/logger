@@ -4,7 +4,7 @@ export interface FormatOptions {
   colors?: boolean;
 }
 
-const isNode = typeof process !== 'undefined' && process.versions?.node;
+const isNode = typeof process !== 'undefined' && !!process.versions?.node;
 
 function inspectValue(value: unknown, options: FormatOptions, currentDepth: number): string {
   const { depth = 4, maxArrayLength = 100, colors = false } = options;
@@ -116,7 +116,7 @@ export function formatArgs(args: unknown[], options: FormatOptions = {}): string
 }
 
 export function isNodeEnv(): boolean {
-  return isNode;
+  return !!isNode;
 }
 
 export function isBrowser(): boolean {
