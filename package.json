@@ -1,21 +1,30 @@
 {
   "name": "@gvray/logger",
   "version": "1.0.0",
-  "description": "Logging utility with different log levels with timestamp options.",
+  "description": "Powerful logging utility with middleware support, colored output, and deep object inspection.",
   "main": "./dist/gvray-logger.cjs.js",
   "module": "./dist/gvray-logger.esm.js",
   "browser": "./dist/gvray-logger.min.js",
   "unpkg": "./dist/gvray-logger.min.js",
   "types": "./dist/gvray-logger.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/gvray-logger.esm.js",
+      "require": "./dist/gvray-logger.cjs.js",
+      "types": "./dist/gvray-logger.d.ts"
+    }
+  },
   "scripts": {
     "build": "swiftlet build",
+    "dev": "swiftlet build --watch",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
+    "examples": "npx serve .",
     "prepublishOnly": "npm run build && npm run test",
     "prepare": "husky install",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx --ignore-pattern 'examples/**'",
+    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix --ignore-pattern 'examples/**'",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "type-check": "tsc --noEmit",
@@ -35,6 +44,7 @@
   "devDependencies": {
     "@eslint/js": "^9.39.2",
     "@types/jest": "^29.5.12",
+    "@types/node": "^25.0.9",
     "@typescript-eslint/eslint-plugin": "^8.53.0",
     "@typescript-eslint/parser": "^8.53.0",
     "eslint": "^9.39.2",

@@ -1,5 +1,5 @@
-import { defineConfig } from 'eslint/config'
-import tsConfig from 'eslint-config-lavy/ts'
+import { defineConfig } from 'eslint/config';
+import tsConfig from 'eslint-config-lavy/ts';
 
 export default defineConfig([
   // Global ignores
@@ -14,8 +14,10 @@ export default defineConfig([
       '**/.output/**',
       '**/*.min.js',
       '**/public/**',
-      '**/vendor/**'
-    ]
+      '**/vendor/**',
+      '**/*.test.ts',
+      '**/*.spec.ts',
+    ],
   },
 
   // Base configs
@@ -26,7 +28,7 @@ export default defineConfig([
     files: ['**/*.ts'],
     rules: {
       // Add project-specific rules here
-    }
+    },
   },
 
   // Test files - relaxed rules
@@ -34,7 +36,7 @@ export default defineConfig([
     files: ['**/*.test.{js,ts,tsx}', '**/*.spec.{js,ts,tsx}', '**/tests/**', '**/__tests__/**'],
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
-      'no-console': 'off'
-    }
-  }
-])
+      'no-console': 'off',
+    },
+  },
+]);

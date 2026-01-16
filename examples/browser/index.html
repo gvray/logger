@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>@gvray/logger - Browser Examples</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #1a1a2e;
+      color: #eee;
+    }
+
+    h1 {
+      color: #00d9ff;
+      margin-bottom: 10px;
+    }
+
+    h2 {
+      color: #7b68ee;
+      margin-top: 30px;
+    }
+
+    .subtitle {
+      color: #888;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background: #16213e;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+      border: 1px solid #0f3460;
+    }
+
+    .card h3 {
+      margin-top: 0;
+      color: #00d9ff;
+    }
+
+    a {
+      display: inline-block;
+      background: #0f3460;
+      color: #00d9ff;
+      padding: 12px 24px;
+      border-radius: 8px;
+      text-decoration: none;
+      margin: 5px 10px 5px 0;
+      transition: background 0.2s;
+    }
+
+    a:hover {
+      background: #1a4a7a;
+    }
+
+    .tag {
+      display: inline-block;
+      background: #7b68ee;
+      color: white;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      margin-left: 10px;
+    }
+
+    code {
+      background: #0f3460;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .instructions {
+      background: #0f3460;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+
+    .instructions code {
+      background: #1a4a7a;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>🪵 @gvray/logger</h1>
+  <p class="subtitle">Browser Examples - ESM & UMD</p>
+
+  <div class="instructions">
+    <strong>运行说明：</strong><br>
+    在项目根目录执行 <code>pnpm examples</code> 启动本地服务器
+  </div>
+
+  <div class="card">
+    <h3>ESM Module <span class="tag">推荐</span></h3>
+    <p>使用 ES Modules 导入，支持 Tree Shaking</p>
+    <a href="./esm.html">查看 ESM 示例 →</a>
+  </div>
+
+  <div class="card">
+    <h3>UMD (Script 标签)</h3>
+    <p>直接通过 <code>&lt;script&gt;</code> 标签引入，全局变量 <code>GvrayLogger</code></p>
+    <a href="./umd.html">查看 UMD 示例 →</a>
+  </div>
+
+  <h2>功能特性</h2>
+  <div class="card">
+    <ul>
+      <li>🎨 彩色控制台输出（浏览器 DevTools 支持）</li>
+      <li>📦 深度对象检查</li>
+      <li>🏷️ 命名空间 / 子 Logger</li>
+      <li>🔧 中间件系统</li>
+      <li>⏰ 多种时间戳格式</li>
+    </ul>
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>@gvray/logger - ESM Example</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #1a1a2e;
+      color: #eee;
+    }
+
+    h1 {
+      color: #00d9ff;
+    }
+
+    .tag {
+      background: #7b68ee;
+      color: white;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      margin-left: 10px;
+    }
+
+    a {
+      color: #00d9ff;
+    }
+
+    .controls {
+      margin: 20px 0;
+    }
+
+    button {
+      background: #0f3460;
+      color: #00d9ff;
+      border: 1px solid #00d9ff;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 5px;
+      font-size: 14px;
+    }
+
+    button:hover {
+      background: #1a4a7a;
+    }
+
+    .section {
+      background: #16213e;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+    }
+
+    .section h3 {
+      margin-top: 0;
+      color: #7b68ee;
+    }
+
+    code {
+      background: #0f3460;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    pre {
+      background: #0f3460;
+      padding: 15px;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+
+    .hint {
+      color: #888;
+      font-size: 14px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>📦 ESM Example <span class="tag">ES Modules</span></h1>
+  <p><a href="index.html">← 返回首页</a></p>
+
+  <div class="section">
+    <h3>使用方式</h3>
+    <pre><code>&lt;script type="module"&gt;
+import { Logger, LogLevel } from './dist/gvray-logger.esm.js';
+
+const logger = new Logger({ level: LogLevel.DEBUG });
+logger.info('Hello from ESM!');
+&lt;/script&gt;</code></pre>
+  </div>
+
+  <div class="controls">
+    <h3>测试按钮</h3>
+    <button onclick="testBasic()">基础日志</button>
+    <button onclick="testLevels()">所有级别</button>
+    <button onclick="testObjects()">对象打印</button>
+    <button onclick="testNamespace()">命名空间</button>
+    <button onclick="testMiddleware()">中间件</button>
+    <button onclick="testColors()">颜色切换</button>
+  </div>
+
+  <p class="hint">💡 打开浏览器 DevTools Console (F12) 查看输出</p>
+
+  <script type="module">
+    import {
+      Logger,
+      LogLevel,
+      prefixMiddleware,
+      jsonMiddleware,
+      redactMiddleware
+    } from '../../dist/gvray-logger.esm.js';
+
+    // 暴露到全局供按钮调用
+    window.Logger = Logger;
+    window.LogLevel = LogLevel;
+    window.prefixMiddleware = prefixMiddleware;
+    window.jsonMiddleware = jsonMiddleware;
+    window.redactMiddleware = redactMiddleware;
+
+    // 基础日志测试
+    window.testBasic = function () {
+      console.clear();
+      console.log('%c=== ESM 基础日志测试 ===', 'color: #00d9ff; font-weight: bold');
+
+      const logger = new Logger({
+        level: LogLevel.DEBUG,
+        timestamp: 'time'
+      });
+
+      logger.info('Hello from ESM!');
+      logger.debug('This is a debug message');
+      logger.info('This is an info message');
+      logger.warning('This is a warning');
+    };
+
+    // 所有级别测试
+    window.testLevels = function () {
+      console.clear();
+      console.log('%c=== 所有日志级别 ===', 'color: #00d9ff; font-weight: bold');
+
+      const logger = new Logger({ level: LogLevel.TRACE });
+
+      logger.trace('TRACE - 最详细的追踪信息');
+      logger.debug('DEBUG - 调试信息');
+      logger.info('INFO - 一般信息');
+      logger.warning('WARNING - 警告信息');
+      logger.error('ERROR - 错误信息');
+      logger.fatal('FATAL - 致命错误');
+    };
+
+    // 对象打印测试
+    window.testObjects = function () {
+      console.clear();
+      console.log('%c=== 对象深度打印 ===', 'color: #00d9ff; font-weight: bold');
+
+      const logger = new Logger({ level: LogLevel.DEBUG });
+
+      const user = {
+        id: 1,
+        name: 'John Doe',
+        email: 'john@example.com',
+        settings: {
+          theme: 'dark',
+          notifications: { email: true, push: false }
+        }
+      };
+
+      logger.info('用户信息:', user);
+      logger.debug('数组示例:', [1, 2, 3, { nested: true }]);
+      logger.info('多个参数:', 'name', 123, { key: 'value' });
+    };
+
+    // 命名空间测试
+    window.testNamespace = function () {
+      console.clear();
+      console.log('%c=== 命名空间 / 子Logger ===', 'color: #00d9ff; font-weight: bold');
+
+      const app = new Logger({ namespace: 'app', timestamp: 'time' });
+      const db = app.child('database');
+      const http = app.child('http');
+      const auth = http.child('auth');
+
+      app.info('应用启动');
+      db.info('数据库已连接');
+      http.info('HTTP 服务器监听端口 3000');
+      auth.debug('处理认证请求');
+    };
+
+    // 中间件测试
+    window.testMiddleware = function () {
+      console.clear();
+      console.log('%c=== 中间件示例 ===', 'color: #00d9ff; font-weight: bold');
+
+      // Prefix 中间件
+      const prefixed = new Logger({ level: LogLevel.DEBUG });
+      prefixed.use(prefixMiddleware('[SYSTEM]'));
+      prefixed.info('带前缀的消息');
+
+      // 脱敏中间件
+      const secure = new Logger({ level: LogLevel.DEBUG });
+      secure.use(redactMiddleware(['password123', /\d{4}-\d{4}/]));
+      secure.info('密码: password123, 卡号: 1234-5678');
+
+      // JSON 输出
+      const json = new Logger({ level: LogLevel.DEBUG, colors: false });
+      json.use(jsonMiddleware());
+      json.info('JSON 格式输出');
+    };
+
+    // 颜色切换测试
+    window.testColors = function () {
+      console.clear();
+      console.log('%c=== 颜色切换 ===', 'color: #00d9ff; font-weight: bold');
+
+      const logger = new Logger({ level: LogLevel.DEBUG });
+
+      logger.info('默认带颜色');
+      logger.disableColors();
+      logger.info('颜色已禁用');
+      logger.enableColors();
+      logger.info('颜色已恢复');
+    };
+
+    // 页面加载时自动执行一次
+    console.log('%c✅ ESM 模块加载成功!', 'color: #32cd32; font-weight: bold');
+    console.log('Logger:', Logger);
+    console.log('LogLevel:', LogLevel);
+  </script>
+</body>
+
+</html>
