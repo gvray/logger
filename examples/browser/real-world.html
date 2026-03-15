@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real-World Examples - @gvray/logger</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #1a1a2e;
+      color: #eee;
+    }
+
+    h1 {
+      color: #00d9ff;
+    }
+
+    h2 {
+      color: #7b68ee;
+      margin-top: 40px;
+      border-bottom: 2px solid #0f3460;
+      padding-bottom: 10px;
+    }
+
+    a {
+      color: #00d9ff;
+    }
+
+    .scenario {
+      background: #16213e;
+      border-radius: 12px;
+      padding: 25px;
+      margin: 20px 0;
+      border: 1px solid #0f3460;
+    }
+
+    .scenario h3 {
+      margin-top: 0;
+      color: #00d9ff;
+      font-size: 20px;
+    }
+
+    .scenario-desc {
+      color: #aaa;
+      font-size: 14px;
+      margin: 10px 0 20px 0;
+      line-height: 1.6;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    button {
+      background: #0f3460;
+      color: #00d9ff;
+      border: 1px solid #00d9ff;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    button:hover {
+      background: #1a4a7a;
+      transform: translateY(-2px);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button.primary {
+      background: #00d9ff;
+      color: #1a1a2e;
+      font-weight: bold;
+    }
+
+    button.danger {
+      background: #ff4757;
+      border-color: #ff4757;
+      color: white;
+    }
+
+    .hint {
+      background: #0f3460;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+      border-left: 4px solid #00d9ff;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+    }
+
+    .stat-card {
+      background: #0f3460;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: bold;
+      color: #00d9ff;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #aaa;
+      margin-top: 5px;
+    }
+
+    code {
+      background: #0f3460;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+
+    pre {
+      background: #0f3460;
+      padding: 15px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    pre code {
+      background: transparent;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      margin-left: 10px;
+    }
+
+    .badge.success {
+      background: #32cd32;
+      color: white;
+    }
+
+    .badge.warning {
+      background: #ffa500;
+      color: white;
+    }
+
+    .badge.error {
+      background: #ff4757;
+      color: white;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>🎨 Real-World Examples</h1>
+  <p><a href="index.html">← 返回首页</a></p>
+
+  <div class="hint">
+    💡 <strong>提示：</strong>这些示例模拟真实项目中的日志使用场景。打开 DevTools Console (F12) 查看输出。
+  </div>
+
+  <div id="stats" class="stats">
+    <div class="stat-card">
+      <div class="stat-value" id="totalRequests">0</div>
+      <div class="stat-label">总请求数</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="successRequests">0</div>
+      <div class="stat-label">成功</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="errorRequests">0</div>
+      <div class="stat-label">错误</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="avgResponseTime">0ms</div>
+      <div class="stat-label">平均响应时间</div>
+    </div>
+  </div>
+
+  <h2>📡 API Request Logging</h2>
+
+  <div class="scenario">
+    <h3>HTTP 请求日志 <span class="badge success">常用</span></h3>
+    <p class="scenario-desc">
+      记录 API 请求的完整生命周期：请求参数、响应时间、状态码、错误信息等。
+      使用命名空间区分不同的 API 模块，使用中间件添加请求 ID。
+    </p>
+    <pre><code>// 配置
+const apiLogger = logger.child('api');
+apiLogger.use(prefixMiddleware(() => `[${generateRequestId()}]`));
+
+// 使用
+apiLogger.info('GET /users', { params: { page: 1 } });
+apiLogger.debug('Response:', { status: 200, time: '45ms' });</code></pre>
+    <div class="actions">
+      <button class="primary" onclick="simulateAPIRequest('success')">模拟成功请求</button>
+      <button onclick="simulateAPIRequest('slow')">模拟慢请求</button>
+      <button class="danger" onclick="simulateAPIRequest('error')">模拟失败请求</button>
+      <button onclick="simulateBatchRequests()">批量请求 (x10)</button>
+    </div>
+  </div>
+
+  <h2>🐛 Error Handling & Debugging</h2>
+
+  <div class="scenario">
+    <h3>错误追踪与调试 <span class="badge error">重要</span></h3>
+    <p class="scenario-desc">
+      捕获和记录应用错误，包括堆栈信息、上下文数据、用户操作等。
+      使用监听器将错误发送到监控服务（如 Sentry）。
+    </p>
+    <pre><code>// 错误处理
+try {
+  await riskyOperation();
+} catch (error) {
+  logger.error('Operation failed:', error, {
+    userId: currentUser.id,
+    action: 'checkout',
+    cart: cartItems
+  });
+}</code></pre>
+    <div class="actions">
+      <button onclick="simulateError('validation')">验证错误</button>
+      <button onclick="simulateError('network')">网络错误</button>
+      <button onclick="simulateError('runtime')">运行时错误</button>
+      <button class="danger" onclick="simulateError('fatal')">致命错误</button>
+    </div>
+  </div>
+
+  <h2>⚡ Performance Monitoring</h2>
+
+  <div class="scenario">
+    <h3>性能监控 <span class="badge warning">优化</span></h3>
+    <p class="scenario-desc">
+      记录关键操作的性能指标：执行时间、内存使用、资源加载等。
+      使用自定义中间件计算时间差，监听器收集性能数据。
+    </p>
+    <pre><code>// 性能测量
+const start = performance.now();
+await heavyOperation();
+const duration = performance.now() - start;
+
+perfLogger.info('Operation completed', {
+  duration: `${duration.toFixed(2)}ms`,
+  memory: performance.memory?.usedJSHeapSize
+});</code></pre>
+    <div class="actions">
+      <button onclick="measurePerformance('fast')">快速操作 (&lt;100ms)</button>
+      <button onclick="measurePerformance('normal')">正常操作 (100-500ms)</button>
+      <button class="danger" onclick="measurePerformance('slow')">慢操作 (&gt;500ms)</button>
+    </div>
+  </div>
+
+  <h2>👤 User Activity Tracking</h2>
+
+  <div class="scenario">
+    <h3>用户行为追踪</h3>
+    <p class="scenario-desc">
+      记录用户在应用中的关键操作：登录、页面访问、功能使用等。
+      使用命名空间区分不同用户，中间件自动添加用户信息。
+    </p>
+    <pre><code>// 用户日志
+const userLogger = logger.child(`user:${userId}`);
+userLogger.use((ctx, next) => {
+  ctx.args = [...ctx.args, { sessionId, timestamp }];
+  next();
+});
+
+userLogger.info('Page viewed', { page: '/dashboard' });
+userLogger.info('Button clicked', { button: 'checkout' });</code></pre>
+    <div class="actions">
+      <button onclick="trackUserActivity('login')">用户登录</button>
+      <button onclick="trackUserActivity('navigate')">页面导航</button>
+      <button onclick="trackUserActivity('action')">功能操作</button>
+      <button onclick="trackUserActivity('logout')">用户登出</button>
+    </div>
+  </div>
+
+  <h2>🔄 State Management</h2>
+
+  <div class="scenario">
+    <h3>状态变更日志</h3>
+    <p class="scenario-desc">
+      记录应用状态的变化，便于调试和回溯。
+      特别适合 Redux、Vuex 等状态管理库的集成。
+    </p>
+    <pre><code>// Redux middleware
+const loggerMiddleware = store => next => action => {
+  stateLogger.debug('Action:', action.type, {
+    payload: action.payload,
+    prevState: store.getState()
+  });
+  const result = next(action);
+  stateLogger.debug('New state:', store.getState());
+  return result;
+};</code></pre>
+    <div class="actions">
+      <button onclick="logStateChange('increment')">增加计数</button>
+      <button onclick="logStateChange('update')">更新数据</button>
+      <button onclick="logStateChange('reset')">重置状态</button>
+    </div>
+  </div>
+
+  <h2>🔐 Security & Audit</h2>
+
+  <div class="scenario">
+    <h3>安全审计日志 <span class="badge error">安全</span></h3>
+    <p class="scenario-desc">
+      记录安全相关事件：登录尝试、权限检查、敏感操作等。
+      使用脱敏中间件保护敏感信息，监听器发送到审计系统。
+    </p>
+    <pre><code>// 安全日志
+const auditLogger = logger.child('audit');
+auditLogger.use(redactMiddleware([
+  /password/i,
+  /token/i,
+  /secret/i
+]));
+
+auditLogger.warning('Failed login attempt', {
+  username: 'admin',
+  ip: '192.168.1.100',
+  reason: 'invalid_password'
+});</code></pre>
+    <div class="actions">
+      <button onclick="logSecurityEvent('login_success')">登录成功</button>
+      <button class="danger" onclick="logSecurityEvent('login_failed')">登录失败</button>
+      <button onclick="logSecurityEvent('permission_check')">权限检查</button>
+      <button class="danger" onclick="logSecurityEvent('suspicious')">可疑活动</button>
+    </div>
+  </div>
+
+  <h2>📊 Analytics & Metrics</h2>
+
+  <div class="scenario">
+    <h3>数据分析与指标</h3>
+    <p class="scenario-desc">
+      收集业务指标和分析数据：转化率、用户留存、功能使用率等。
+      使用监听器聚合数据，定期发送到分析平台。
+    </p>
+    <div class="actions">
+      <button onclick="logAnalytics('pageview')">页面浏览</button>
+      <button onclick="logAnalytics('conversion')">转化事件</button>
+      <button onclick="logAnalytics('feature_usage')">功能使用</button>
+      <button class="primary" onclick="showAnalyticsSummary()">查看统计摘要</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import {
+      Logger,
+      LogLevel,
+      prefixMiddleware,
+      redactMiddleware,
+      errorStackMiddleware
+    } from '../../dist/gvray-logger.esm.js';
+
+    // 全局统计
+    const stats = {
+      totalRequests: 0,
+      successRequests: 0,
+      errorRequests: 0,
+      responseTimes: [],
+      analytics: {
+        pageviews: 0,
+        conversions: 0,
+        featureUsage: 0
+      }
+    };
+
+    function updateStats() {
+      document.getElementById('totalRequests').textContent = stats.totalRequests;
+      document.getElementById('successRequests').textContent = stats.successRequests;
+      document.getElementById('errorRequests').textContent = stats.errorRequests;
+      const avg = stats.responseTimes.length > 0
+        ? Math.round(stats.responseTimes.reduce((a, b) => a + b, 0) / stats.responseTimes.length)
+        : 0;
+      document.getElementById('avgResponseTime').textContent = `${avg}ms`;
+    }
+
+    // 主 Logger
+    const logger = new Logger({
+      level: LogLevel.DEBUG,
+      timestamp: 'time'
+    });
+
+    // API Logger
+    const apiLogger = logger.child('api');
+    let requestId = 1000;
+    apiLogger.use((ctx, next) => {
+      ctx.args = [`[REQ-${requestId++}]`, ...ctx.args];
+      next();
+    });
+
+    window.simulateAPIRequest = async function (type) {
+      console.clear();
+      console.log('%c=== API Request Simulation ===', 'color: #00d9ff; font-weight: bold');
+      
+      stats.totalRequests++;
+      const endpoint = '/api/users';
+      const method = 'GET';
+      
+      apiLogger.info(`${method} ${endpoint}`, { params: { page: 1, limit: 10 } });
+      
+      // 模拟请求延迟
+      const delay = type === 'slow' ? 800 : type === 'error' ? 300 : Math.random() * 200 + 50;
+      const start = performance.now();
+      
+      await new Promise(resolve => setTimeout(resolve, delay));
+      
+      const duration = Math.round(performance.now() - start);
+      stats.responseTimes.push(duration);
+      
+      if (type === 'error') {
+        stats.errorRequests++;
+        apiLogger.error(`${method} ${endpoint} failed`, {
+          status: 500,
+          duration: `${duration}ms`,
+          error: 'Internal Server Error'
+        });
+      } else {
+        stats.successRequests++;
+        const warnThreshold = 500;
+        const logLevel = duration > warnThreshold ? 'warn' : 'info';
+        apiLogger[logLevel](`${method} ${endpoint} completed`, {
+          status: 200,
+          duration: `${duration}ms`,
+          records: 42
+        });
+      }
+      
+      updateStats();
+    };
+
+    window.simulateBatchRequests = async function () {
+      console.clear();
+      console.log('%c=== Batch API Requests ===', 'color: #00d9ff; font-weight: bold');
+      
+      for (let i = 0; i < 10; i++) {
+        const types = ['success', 'success', 'success', 'slow', 'error'];
+        const type = types[Math.floor(Math.random() * types.length)];
+        await simulateAPIRequest(type);
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+    };
+
+    // Error Handling
+    const errorLogger = logger.child('error');
+    errorLogger.use(errorStackMiddleware());
+
+    window.simulateError = function (type) {
+      console.clear();
+      console.log('%c=== Error Simulation ===', 'color: #ff4757; font-weight: bold');
+      
+      const errors = {
+        validation: () => {
+          const error = new Error('Validation failed: Email is required');
+          error.code = 'VALIDATION_ERROR';
+          errorLogger.warning('Form validation error', error, {
+            field: 'email',
+            value: '',
+            userId: 'user_123'
+          });
+        },
+        network: () => {
+          const error = new Error('Network request failed');
+          error.code = 'NETWORK_ERROR';
+          errorLogger.error('API request failed', error, {
+            endpoint: '/api/data',
+            method: 'POST',
+            retries: 3
+          });
+        },
+        runtime: () => {
+          const error = new TypeError("Cannot read property 'name' of undefined");
+          errorLogger.error('Runtime error in component', error, {
+            component: 'UserProfile',
+            props: { userId: null }
+          });
+        },
+        fatal: () => {
+          const error = new Error('Database connection lost');
+          error.code = 'DB_CONNECTION_LOST';
+          errorLogger.fatal('Critical system error', error, {
+            service: 'database',
+            uptime: '2h 34m',
+            lastBackup: '10 minutes ago'
+          });
+        }
+      };
+      
+      errors[type]?.();
+    };
+
+    // Performance Monitoring
+    const perfLogger = logger.child('performance');
+
+    window.measurePerformance = async function (speed) {
+      console.clear();
+      console.log('%c=== Performance Measurement ===', 'color: #ffa500; font-weight: bold');
+      
+      const delays = { fast: 50, normal: 250, slow: 800 };
+      const delay = delays[speed];
+      
+      perfLogger.info('Starting heavy operation...');
+      
+      const start = performance.now();
+      await new Promise(resolve => setTimeout(resolve, delay));
+      const duration = performance.now() - start;
+      
+      const logData = {
+        duration: `${duration.toFixed(2)}ms`,
+        threshold: '500ms',
+        status: duration > 500 ? 'SLOW' : 'OK'
+      };
+      
+      if (performance.memory) {
+        logData.memory = `${(performance.memory.usedJSHeapSize / 1024 / 1024).toFixed(2)}MB`;
+      }
+      
+      const logLevel = duration > 500 ? 'warning' : 'info';
+      perfLogger[logLevel]('Operation completed', logData);
+    };
+
+    // User Activity
+    const userLogger = logger.child('user:user_42');
+
+    window.trackUserActivity = function (activity) {
+      console.clear();
+      console.log('%c=== User Activity Tracking ===', 'color: #7b68ee; font-weight: bold');
+      
+      const activities = {
+        login: () => {
+          userLogger.info('User logged in', {
+            method: 'email',
+            ip: '192.168.1.100',
+            device: 'Chrome/Mac',
+            sessionId: 'sess_abc123'
+          });
+        },
+        navigate: () => {
+          userLogger.debug('Page navigation', {
+            from: '/home',
+            to: '/dashboard',
+            duration: '1.2s'
+          });
+        },
+        action: () => {
+          userLogger.info('Feature used', {
+            feature: 'export_data',
+            format: 'CSV',
+            records: 1523
+          });
+        },
+        logout: () => {
+          userLogger.info('User logged out', {
+            sessionDuration: '45m 23s',
+            pagesVisited: 12
+          });
+        }
+      };
+      
+      activities[activity]?.();
+    };
+
+    // State Management
+    const stateLogger = logger.child('state');
+    let appState = { counter: 0, data: null };
+
+    window.logStateChange = function (action) {
+      console.clear();
+      console.log('%c=== State Change ===', 'color: #32cd32; font-weight: bold');
+      
+      const prevState = { ...appState };
+      
+      const actions = {
+        increment: () => {
+          appState.counter++;
+          stateLogger.debug('State updated', {
+            action: 'INCREMENT',
+            prevState,
+            newState: appState,
+            diff: { counter: '+1' }
+          });
+        },
+        update: () => {
+          appState.data = { users: [{ id: 1, name: 'John' }] };
+          stateLogger.debug('State updated', {
+            action: 'FETCH_USERS_SUCCESS',
+            prevState,
+            newState: appState
+          });
+        },
+        reset: () => {
+          appState = { counter: 0, data: null };
+          stateLogger.info('State reset', {
+            action: 'RESET',
+            prevState,
+            newState: appState
+          });
+        }
+      };
+      
+      actions[action]?.();
+    };
+
+    // Security & Audit
+    const auditLogger = logger.child('audit');
+    auditLogger.use(redactMiddleware([
+      /password/i,
+      /token/i,
+      /secret/i,
+      /key/i
+    ]));
+
+    window.logSecurityEvent = function (event) {
+      console.clear();
+      console.log('%c=== Security Event ===', 'color: #ff4757; font-weight: bold');
+      
+      const events = {
+        login_success: () => {
+          auditLogger.info('Login successful', {
+            username: 'john.doe',
+            ip: '192.168.1.100',
+            timestamp: new Date().toISOString(),
+            mfa: true
+          });
+        },
+        login_failed: () => {
+          auditLogger.warning('Login failed', {
+            username: 'admin',
+            password: 'secret123',  // 会被脱敏
+            ip: '192.168.1.100',
+            reason: 'invalid_credentials',
+            attempts: 3
+          });
+        },
+        permission_check: () => {
+          auditLogger.debug('Permission check', {
+            user: 'john.doe',
+            resource: '/admin/users',
+            permission: 'read',
+            result: 'denied'
+          });
+        },
+        suspicious: () => {
+          auditLogger.error('Suspicious activity detected', {
+            user: 'unknown',
+            ip: '123.45.67.89',
+            action: 'multiple_failed_logins',
+            count: 10,
+            timeWindow: '5 minutes'
+          });
+        }
+      };
+      
+      events[event]?.();
+    };
+
+    // Analytics
+    const analyticsLogger = logger.child('analytics');
+
+    window.logAnalytics = function (event) {
+      console.clear();
+      console.log('%c=== Analytics Event ===', 'color: #00d9ff; font-weight: bold');
+      
+      const events = {
+        pageview: () => {
+          stats.analytics.pageviews++;
+          analyticsLogger.debug('Page view', {
+            page: '/products',
+            referrer: '/home',
+            userId: 'user_42',
+            sessionId: 'sess_abc'
+          });
+        },
+        conversion: () => {
+          stats.analytics.conversions++;
+          analyticsLogger.info('Conversion event', {
+            type: 'purchase',
+            value: 99.99,
+            currency: 'USD',
+            items: 3
+          });
+        },
+        feature_usage: () => {
+          stats.analytics.featureUsage++;
+          analyticsLogger.debug('Feature usage', {
+            feature: 'advanced_search',
+            filters: ['category', 'price_range'],
+            results: 42
+          });
+        }
+      };
+      
+      events[event]?.();
+    };
+
+    window.showAnalyticsSummary = function () {
+      console.clear();
+      console.log('%c=== Analytics Summary ===', 'color: #32cd32; font-weight: bold');
+      console.table(stats.analytics);
+      analyticsLogger.info('Analytics summary', stats.analytics);
+    };
+
+    console.log('%c✅ Real-World Examples Loaded', 'color: #32cd32; font-weight: bold');
+    console.log('点击页面上的按钮模拟真实应用场景');
+  </script>
+</body>
+
+</html>

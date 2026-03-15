@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>@gvray/logger - ESM Example</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quick Start - @gvray/logger</title>
   <style>
     * {
       box-sizing: border-box;
@@ -12,7 +12,7 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      max-width: 900px;
+      max-width: 1000px;
       margin: 0 auto;
       padding: 20px;
       background: #1a1a2e;
@@ -21,6 +21,13 @@
 
     h1 {
       color: #00d9ff;
+    }
+
+    h2 {
+      color: #7b68ee;
+      margin-top: 40px;
+      border-bottom: 2px solid #0f3460;
+      padding-bottom: 10px;
     }
 
     .tag {
@@ -36,8 +43,30 @@
       color: #00d9ff;
     }
 
-    .controls {
+    .demo-section {
+      background: #16213e;
+      border-radius: 12px;
+      padding: 20px;
       margin: 20px 0;
+      border: 1px solid #0f3460;
+    }
+
+    .demo-section h3 {
+      margin-top: 0;
+      color: #00d9ff;
+    }
+
+    .demo-section p {
+      color: #aaa;
+      font-size: 14px;
+      margin: 10px 0;
+    }
+
+    .controls {
+      margin: 15px 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
     }
 
     button {
@@ -47,7 +76,8 @@
       padding: 10px 20px;
       border-radius: 6px;
       cursor: pointer;
-      margin: 5px;
+      font-size: 14px;
+      transition: all 0.2s;
       font-size: 14px;
     }
 
@@ -89,30 +119,152 @@
 </head>
 
 <body>
-  <h1>📦 ESM Example <span class="tag">ES Modules</span></h1>
+  <h1>� Quick Start <span class="tag">推荐</span></h1>
   <p><a href="index.html">← 返回首页</a></p>
 
-  <div class="section">
-    <h3>使用方式</h3>
-    <pre><code>&lt;script type="module"&gt;
-import { Logger, LogLevel } from './dist/gvray-logger.esm.js';
-
-const logger = new Logger({ level: LogLevel.DEBUG });
-logger.info('Hello from ESM!');
-&lt;/script&gt;</code></pre>
+  <div class="hint" style="
+        background: #0f3460;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 20px 0;
+        border-left: 4px solid #00d9ff;
+      ">
+    💡 <strong>提示：</strong>打开浏览器 DevTools Console (F12) 查看日志输出效果
   </div>
 
-  <div class="controls">
-    <h3>测试按钮</h3>
-    <button onclick="testBasic()">基础日志</button>
-    <button onclick="testLevels()">所有级别</button>
-    <button onclick="testObjects()">对象打印</button>
-    <button onclick="testNamespace()">命名空间</button>
-    <button onclick="testMiddleware()">中间件</button>
-    <button onclick="testColors()">颜色切换</button>
+  <h2>📝 基础用法</h2>
+
+  <div class="demo-section">
+    <h3>1. 日志级别</h3>
+    <p>支持 6 种日志级别：TRACE, DEBUG, INFO, WARNING, ERROR, FATAL</p>
+    <div class="controls">
+      <button onclick="demoLogLevels()">运行示例</button>
+    </div>
+    <pre><code>logger.trace('Trace message');
+logger.debug('Debug message');
+logger.info('Info message');
+logger.warning('Warning message');
+logger.error('Error message');
+logger.fatal('Fatal message');</code></pre>
   </div>
 
-  <p class="hint">💡 打开浏览器 DevTools Console (F12) 查看输出</p>
+  <div class="demo-section">
+    <h3>
+      2. 多参数输出
+      <span class="tag" style="background: #32cd32">原生体验</span>
+    </h3>
+    <p>像原生 console 一样传递多个参数，对象可在控制台交互展开</p>
+    <div class="controls">
+      <button onclick="demoMultiArgs()">运行示例</button>
+    </div>
+    <pre><code>const user = { id: 1, name: 'John', role: 'admin' };
+logger.info('User logged in:', user, { timestamp: Date.now() });
+
+// 对象在控制台中可以点击展开查看详情</code></pre>
+  </div>
+
+  <div class="demo-section">
+    <h3>3. 时间戳格式</h3>
+    <p>支持多种时间戳格式：iso, locale, time, unix 或自定义函数</p>
+    <div class="controls">
+      <button onclick="demoTimestamps()">ISO 格式</button>
+      <button onclick="demoTimestampsLocale()">本地格式</button>
+      <button onclick="demoTimestampsTime()">时间格式</button>
+      <button onclick="demoTimestampsCustom()">自定义</button>
+    </div>
+    <pre><code>// ISO 格式
+new Logger({ timestamp: 'iso' });
+
+// 自定义格式
+new Logger({
+  timestamp: (date) => date.toLocaleTimeString()
+});</code></pre>
+  </div>
+
+  <div class="demo-section">
+    <h3>4. 颜色控制</h3>
+    <p>在浏览器控制台中显示彩色日志，可动态开关</p>
+    <div class="controls">
+      <button onclick="demoColors(true)">启用颜色</button>
+      <button onclick="demoColors(false)">禁用颜色</button>
+    </div>
+    <pre><code>const logger = new Logger({ colors: true });
+logger.enableColors();  // 启用
+logger.disableColors(); // 禁用</code></pre>
+  </div>
+
+  <div class="demo-section">
+    <h3>5. 日志级别过滤</h3>
+    <p>设置最低日志级别，过滤不需要的日志</p>
+    <div class="controls">
+      <button onclick="demoLevelFilter('DEBUG')">DEBUG 级别</button>
+      <button onclick="demoLevelFilter('INFO')">INFO 级别</button>
+      <button onclick="demoLevelFilter('WARNING')">WARNING 级别</button>
+      <button onclick="demoLevelFilter('ERROR')">ERROR 级别</button>
+    </div>
+    <pre><code>// 只显示 WARNING 及以上级别
+const logger = new Logger({ level: LogLevel.WARNING });
+
+logger.debug('不会显示');
+logger.warning('会显示');</code></pre>
+  </div>
+
+  <h2>🎯 实用示例</h2>
+
+  <div class="demo-section">
+    <h3>6. 命名空间</h3>
+    <p>为不同模块创建独立的日志实例</p>
+    <div class="controls">
+      <button onclick="demoNamespaces()">运行示例</button>
+    </div>
+    <pre><code>const apiLogger = new Logger({ namespace: 'api' });
+const dbLogger = new Logger({ namespace: 'database' });
+
+apiLogger.info('Request received');
+dbLogger.info('Query executed');</code></pre>
+  </div>
+
+  <div class="demo-section">
+    <h3>7. 子 Logger</h3>
+    <p>从父 Logger 继承配置，创建层级化日志</p>
+    <div class="controls">
+      <button onclick="demoChildLoggers()">运行示例</button>
+    </div>
+    <pre><code>const app = new Logger({ namespace: 'app' });
+const http = app.child('http');
+const auth = http.child('auth');
+
+auth.info('User authenticated');
+// 输出: [app:http:auth] [INFO] User authenticated</code></pre>
+  </div>
+
+  <div class="demo-section">
+    <h3>8. 中间件</h3>
+    <p>使用中间件扩展日志功能</p>
+    <div class="controls">
+      <button onclick="demoMiddleware()">Prefix 中间件</button>
+      <button onclick="demoMiddlewareRedact()">脱敏中间件</button>
+    </div>
+    <pre><code>import { prefixMiddleware, redactMiddleware } from '@gvray/logger';
+
+logger.use(prefixMiddleware('[API]'));
+logger.use(redactMiddleware(['password', 'token']));</code></pre>
+  </div>
+
+  <div class="demo-section">
+    <h3>9. 链式调用</h3>
+    <p>流畅的 API 设计，支持链式配置</p>
+    <div class="controls">
+      <button onclick="demoChaining()">运行示例</button>
+    </div>
+    <pre><code>const logger = new Logger()
+  .setLevel(LogLevel.DEBUG)
+  .setTimestamp('time')
+  .enableColors()
+  .setDepth(3);
+
+logger.info('Configured!');</code></pre>
+  </div>
 
   <script type="module">
     import {
@@ -120,38 +272,21 @@ logger.info('Hello from ESM!');
       LogLevel,
       prefixMiddleware,
       jsonMiddleware,
-      redactMiddleware
+      redactMiddleware,
     } from '../../dist/gvray-logger.esm.js';
 
     // 暴露到全局供按钮调用
     window.Logger = Logger;
     window.LogLevel = LogLevel;
     window.prefixMiddleware = prefixMiddleware;
-    window.jsonMiddleware = jsonMiddleware;
     window.redactMiddleware = redactMiddleware;
 
-    // 基础日志测试
-    window.testBasic = function () {
+    // 1. 日志级别
+    window.demoLogLevels = function () {
       console.clear();
-      console.log('%c=== ESM 基础日志测试 ===', 'color: #00d9ff; font-weight: bold');
+      console.log('%c=== 日志级别演示 ===', 'color: #00d9ff; font-weight: bold');
 
-      const logger = new Logger({
-        level: LogLevel.DEBUG,
-        timestamp: 'time'
-      });
-
-      logger.info('Hello from ESM!');
-      logger.debug('This is a debug message');
-      logger.info('This is an info message');
-      logger.warning('This is a warning');
-    };
-
-    // 所有级别测试
-    window.testLevels = function () {
-      console.clear();
-      console.log('%c=== 所有日志级别 ===', 'color: #00d9ff; font-weight: bold');
-
-      const logger = new Logger({ level: LogLevel.TRACE });
+      const logger = new Logger({ level: LogLevel.TRACE, timestamp: 'time' });
 
       logger.trace('TRACE - 最详细的追踪信息');
       logger.debug('DEBUG - 调试信息');
@@ -161,83 +296,176 @@ logger.info('Hello from ESM!');
       logger.fatal('FATAL - 致命错误');
     };
 
-    // 对象打印测试
-    window.testObjects = function () {
+    // 2. 多参数输出
+    window.demoMultiArgs = function () {
       console.clear();
-      console.log('%c=== 对象深度打印 ===', 'color: #00d9ff; font-weight: bold');
+      console.log('%c=== 多参数输出（原生体验）===', 'color: #00d9ff; font-weight: bold');
 
-      const logger = new Logger({ level: LogLevel.DEBUG });
+      const logger = new Logger({ level: LogLevel.DEBUG, timestamp: 'time' });
 
       const user = {
         id: 1,
         name: 'John Doe',
         email: 'john@example.com',
+        role: 'admin',
         settings: {
           theme: 'dark',
-          notifications: { email: true, push: false }
-        }
+          notifications: { email: true, push: false },
+        },
       };
 
-      logger.info('用户信息:', user);
-      logger.debug('数组示例:', [1, 2, 3, { nested: true }]);
-      logger.info('多个参数:', 'name', 123, { key: 'value' });
+      logger.info('User logged in:', user);
+      logger.info('Multiple args:', 'string', 123, true, { key: 'value' }, [1, 2, 3]);
+      logger.debug('Complex object:', user, { timestamp: Date.now() });
+
+      console.log('\n💡 提示：点击对象可以在控制台中展开查看详情');
     };
 
-    // 命名空间测试
-    window.testNamespace = function () {
+    // 3. 时间戳格式
+    window.demoTimestamps = function () {
       console.clear();
-      console.log('%c=== 命名空间 / 子Logger ===', 'color: #00d9ff; font-weight: bold');
+      console.log('%c=== ISO 时间戳格式 ===', 'color: #00d9ff; font-weight: bold');
+      const logger = new Logger({ timestamp: 'iso' });
+      logger.info('ISO 格式时间戳');
+      logger.debug('2026-03-15T21:52:08.275Z');
+    };
+
+    window.demoTimestampsLocale = function () {
+      console.clear();
+      console.log('%c=== 本地时间戳格式 ===', 'color: #00d9ff; font-weight: bold');
+      const logger = new Logger({ timestamp: 'locale' });
+      logger.info('本地格式时间戳');
+    };
+
+    window.demoTimestampsTime = function () {
+      console.clear();
+      console.log('%c=== 时间格式 ===', 'color: #00d9ff; font-weight: bold');
+      const logger = new Logger({ timestamp: 'time' });
+      logger.info('仅显示时间');
+    };
+
+    window.demoTimestampsCustom = function () {
+      console.clear();
+      console.log('%c=== 自定义时间戳格式 ===', 'color: #00d9ff; font-weight: bold');
+      const logger = new Logger({
+        timestamp: (date) => `[${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}]`,
+      });
+      logger.info('自定义格式时间戳');
+    };
+
+    // 4. 颜色控制
+    window.demoColors = function (enabled) {
+      console.clear();
+      console.log('%c=== 颜色控制 ===', 'color: #00d9ff; font-weight: bold');
+
+      const logger = new Logger({ colors: enabled });
+
+      logger.info('INFO 级别');
+      logger.warning('WARNING 级别');
+      logger.error('ERROR 级别');
+
+      console.log(`\n当前颜色状态: ${enabled ? '✅ 启用' : '❌ 禁用'}`);
+    };
+
+    // 5. 日志级别过滤
+    window.demoLevelFilter = function (level) {
+      console.clear();
+      console.log(`%c=== 日志级别过滤: ${level} ===`, 'color: #00d9ff; font-weight: bold');
+
+      const logger = new Logger({ level: LogLevel[level], timestamp: 'time' });
+
+      logger.trace('TRACE 消息');
+      logger.debug('DEBUG 消息');
+      logger.info('INFO 消息');
+      logger.warning('WARNING 消息');
+      logger.error('ERROR 消息');
+
+      console.log(`\n💡 当前级别: ${level}，只显示 ${level} 及以上级别的日志`);
+    };
+
+    // 6. 命名空间
+    window.demoNamespaces = function () {
+      console.clear();
+      console.log('%c=== 命名空间 ===', 'color: #00d9ff; font-weight: bold');
+
+      const apiLogger = new Logger({ namespace: 'api', timestamp: 'time' });
+      const dbLogger = new Logger({ namespace: 'database', timestamp: 'time' });
+      const cacheLogger = new Logger({ namespace: 'cache', timestamp: 'time' });
+
+      apiLogger.info('Request received: GET /users');
+      dbLogger.info('Query executed: SELECT * FROM users');
+      cacheLogger.debug('Cache hit for key: user:123');
+      apiLogger.info('Response sent: 200 OK');
+    };
+
+    // 7. 子 Logger
+    window.demoChildLoggers = function () {
+      console.clear();
+      console.log('%c=== 子 Logger（层级化日志）===', 'color: #00d9ff; font-weight: bold');
 
       const app = new Logger({ namespace: 'app', timestamp: 'time' });
-      const db = app.child('database');
       const http = app.child('http');
       const auth = http.child('auth');
+      const jwt = auth.child('jwt');
 
-      app.info('应用启动');
-      db.info('数据库已连接');
-      http.info('HTTP 服务器监听端口 3000');
-      auth.debug('处理认证请求');
+      app.info('Application started');
+      http.info('HTTP server listening on port 3000');
+      auth.debug('Processing authentication request');
+      jwt.debug('JWT token generated');
+      jwt.info('Token validated successfully');
     };
 
-    // 中间件测试
-    window.testMiddleware = function () {
+    // 8. 中间件
+    window.demoMiddleware = function () {
       console.clear();
-      console.log('%c=== 中间件示例 ===', 'color: #00d9ff; font-weight: bold');
+      console.log('%c=== Prefix 中间件 ===', 'color: #00d9ff; font-weight: bold');
 
-      // Prefix 中间件
-      const prefixed = new Logger({ level: LogLevel.DEBUG });
-      prefixed.use(prefixMiddleware('[SYSTEM]'));
-      prefixed.info('带前缀的消息');
+      const logger = new Logger({ level: LogLevel.DEBUG, timestamp: 'time' });
+      logger.use(prefixMiddleware('[API]'));
 
-      // 脱敏中间件
-      const secure = new Logger({ level: LogLevel.DEBUG });
-      secure.use(redactMiddleware(['password123', /\d{4}-\d{4}/]));
-      secure.info('密码: password123, 卡号: 1234-5678');
-
-      // JSON 输出
-      const json = new Logger({ level: LogLevel.DEBUG, colors: false });
-      json.use(jsonMiddleware());
-      json.info('JSON 格式输出');
+      logger.info('Request received');
+      logger.debug('Processing data');
+      logger.info('Response sent');
     };
 
-    // 颜色切换测试
-    window.testColors = function () {
+    window.demoMiddlewareRedact = function () {
       console.clear();
-      console.log('%c=== 颜色切换 ===', 'color: #00d9ff; font-weight: bold');
+      console.log('%c=== 脱敏中间件 ===', 'color: #00d9ff; font-weight: bold');
 
       const logger = new Logger({ level: LogLevel.DEBUG });
+      logger.use(
+        redactMiddleware([
+          'password123',
+          'secret-key',
+          /\d{4}-\d{4}-\d{4}-\d{4}/, // 信用卡号
+          /\w+@\w+\.\w+/, // 邮箱
+        ])
+      );
 
-      logger.info('默认带颜色');
-      logger.disableColors();
-      logger.info('颜色已禁用');
-      logger.enableColors();
-      logger.info('颜色已恢复');
+      logger.info('Login attempt: username=admin, password=password123');
+      logger.info('API Key: secret-key');
+      logger.info('Payment: card=1234-5678-9012-3456');
+      logger.info('Contact: email=user@example.com');
+
+      console.log('\n💡 敏感信息已自动替换为 [REDACTED]');
     };
 
-    // 页面加载时自动执行一次
-    console.log('%c✅ ESM 模块加载成功!', 'color: #32cd32; font-weight: bold');
-    console.log('Logger:', Logger);
-    console.log('LogLevel:', LogLevel);
+    // 9. 链式调用
+    window.demoChaining = function () {
+      console.clear();
+      console.log('%c=== 链式调用 ===', 'color: #00d9ff; font-weight: bold');
+
+      const logger = new Logger().setLevel(LogLevel.DEBUG).setTimestamp('time').enableColors();
+
+      logger.info('Logger configured via chaining!');
+      logger.debug('Deep object:', { a: { b: { c: { d: 1 } } } });
+
+      console.log('\n✅ 配置已通过链式调用完成');
+    };
+
+    // 页面加载时自动执行
+    console.log('%c✅ Quick Start Examples Loaded', 'color: #32cd32; font-weight: bold');
+    console.log('点击页面上的按钮查看各种功能演示');
   </script>
 </body>
 

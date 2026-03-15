@@ -1,6 +1,6 @@
 {
   "name": "@gvray/logger",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Powerful logging utility with middleware support, colored output, and deep object inspection.",
   "main": "./dist/gvray-logger.cjs.js",
   "module": "./dist/gvray-logger.esm.js",

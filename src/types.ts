@@ -13,8 +13,6 @@ export interface LogOptions {
   namespace?: string;
   colors?: boolean;
   timestamp?: boolean | TimestampFormat;
-  depth?: number;
-  maxArrayLength?: number;
 }
 
 export type TimestampFormat = 'iso' | 'locale' | 'time' | 'unix' | ((date: Date) => string);

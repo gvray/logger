@@ -6,15 +6,12 @@ import {
   LogContext,
   TimestampFormat,
 } from './types';
-import { formatArgs } from './utils';
 
 class Logger {
   private logLevel: LogLevel;
   private namespace: string | undefined;
   private colorsEnabled: boolean;
   private timestampFormat: TimestampFormat | false;
-  private depth: number;
-  private maxArrayLength: number;
   private logListeners: LogListener[] = [];
   private middleware: LogMiddleware[] = [];
 
@@ -23,8 +20,6 @@ class Logger {
     this.namespace = options.namespace;
     this.colorsEnabled = options.colors ?? true;
     this.timestampFormat = options.timestamp === true ? 'iso' : options.timestamp || false;
-    this.depth = options.depth ?? 4;
-    this.maxArrayLength = options.maxArrayLength ?? 100;
   }
 
   private createContext(level: LogLevel, args: unknown[]): LogContext {
@@ -89,68 +84,97 @@ class Logger {
     return this.colorsEnabled ? `\x1b[90m${text}\x1b[0m` : text;
   }
 
-  private formatMessage(ctx: LogContext): string {
-    const parts: string[] = [];
+  private formatPrefix(ctx: LogContext): string {
+    try {
+      const parts: string[] = [];
 
-    if (this.timestampFormat) {
-      parts.push(this.gray(`[${this.formatTimestamp(ctx.timestamp)}]`));
+      if (this.timestampFormat) {
+        parts.push(this.gray(`[${this.formatTimestamp(ctx.timestamp)}]`));
+      }
+
+      if (ctx.namespace) {
+        parts.push(this.gray(`[${ctx.namespace}]`));
+      }
+
+      const color = this.getColor(ctx.level);
+      parts.push(`${color}[${ctx.levelName}]${this.reset()}`);
+
+      return parts.join(' ');
+    } catch (err) {
+      // Return simple prefix if formatting fails
+      return `[${ctx.levelName}]`;
     }
-
-    if (ctx.namespace) {
-      parts.push(this.gray(`[${ctx.namespace}]`));
-    }
-
-    const color = this.getColor(ctx.level);
-    parts.push(`${color}[${ctx.levelName}]${this.reset()}`);
-
-    const formattedArgs = formatArgs(ctx.args, {
-      depth: this.depth,
-      maxArrayLength: this.maxArrayLength,
-      colors: this.colorsEnabled,
-    });
-    parts.push(formattedArgs);
-
-    return parts.join(' ');
   }
 
   private output(ctx: LogContext): void {
-    if (ctx.level >= this.logLevel && ctx.level < LogLevel.SILENT) {
-      const message = ctx.formattedMessage ?? this.formatMessage(ctx);
+    try {
+      if (ctx.level >= this.logLevel && ctx.level < LogLevel.SILENT) {
+        const prefix = this.formatPrefix(ctx);
+        const outputArgs = [prefix, ...ctx.args];
 
-      if (ctx.level >= LogLevel.ERROR) {
-        console.error(message);
-      } else if (ctx.level === LogLevel.WARNING) {
-        console.warn(message);
-      } else {
-        console.log(message);
+        if (ctx.level >= LogLevel.ERROR) {
+          console.error(...outputArgs);
+        } else if (ctx.level === LogLevel.WARNING) {
+          console.warn(...outputArgs);
+        } else {
+          console.log(...outputArgs);
+        }
+
+        // For listeners, store simple string representation
+        ctx.formattedMessage = `${prefix} ${ctx.args
+          .map((arg) => (typeof arg === 'string' ? arg : JSON.stringify(arg)))
+          .join(' ')}`;
+        this.logListeners.forEach((listener) => {
+          try {
+            listener(ctx);
+          } catch (err) {
+            // Silently ignore listener errors to prevent breaking the application
+          }
+        });
       }
-
-      this.logListeners.forEach((listener) => listener(ctx));
+    } catch (err) {
+      // Fallback to native console if logger fails
+      try {
+        console.error('[Logger Error]', err);
+      } catch {
+        // If even console.error fails, silently ignore
+      }
     }
   }
 
   private logWithMiddleware(level: LogLevel, args: unknown[]): void {
-    const ctx = this.createContext(level, args);
+    try {
+      const ctx = this.createContext(level, args);
 
-    if (this.middleware.length === 0) {
-      this.output(ctx);
-      return;
-    }
-
-    let index = 0;
-    const next = () => {
-      if (index < this.middleware.length) {
-        const mw = this.middleware[index++];
-        try {
-          mw(ctx, next);
-        } catch (err) {
-          console.error('Middleware error:', err);
-        }
-      } else {
+      if (this.middleware.length === 0) {
         this.output(ctx);
+        return;
       }
-    };
-    next();
+
+      let index = 0;
+      const next = (): void => {
+        if (index < this.middleware.length) {
+          const middleware = this.middleware[index++];
+          try {
+            middleware(ctx, next);
+          } catch (err) {
+            // Skip failed middleware and continue to next
+            next();
+          }
+        } else {
+          this.output(ctx);
+        }
+      };
+
+      next();
+    } catch (err) {
+      // Fallback to native console if logger completely fails
+      try {
+        console.log(...args);
+      } catch {
+        // Silently ignore if even fallback fails
+      }
+    }
   }
 
   trace(...args: unknown[]): void {
@@ -186,23 +210,17 @@ class Logger {
     return this;
   }
 
-  child(namespace: string, options: Partial<LogOptions> = {}): Logger {
-    const childNamespace = this.namespace ? `${this.namespace}:${namespace}` : namespace;
+  child(namespace: string): Logger {
     const childOptions: LogOptions = {
-      level: options.level ?? this.logLevel,
-      namespace: childNamespace,
-      colors: options.colors ?? this.colorsEnabled,
-      depth: options.depth ?? this.depth,
-      maxArrayLength: options.maxArrayLength ?? this.maxArrayLength,
+      level: this.logLevel,
+      namespace: this.namespace ? `${this.namespace}:${namespace}` : namespace,
+      colors: this.colorsEnabled,
     };
-    if (options.timestamp !== undefined) {
-      childOptions.timestamp = options.timestamp;
-    } else if (this.timestampFormat) {
+    if (this.timestampFormat) {
       childOptions.timestamp = this.timestampFormat;
     }
     const child = new Logger(childOptions);
     child.middleware = [...this.middleware];
-    child.logListeners = [...this.logListeners];
     return child;
   }
 
@@ -227,11 +245,6 @@ class Logger {
 
   setTimestamp(format: TimestampFormat | boolean): this {
     this.timestampFormat = format === true ? 'iso' : format || false;
-    return this;
-  }
-
-  setDepth(depth: number): this {
-    this.depth = depth;
     return this;
   }
 
