@@ -1,6 +1,12 @@
+/**
+ * Options controlling how {@link formatArgs} inspects values.
+ */
 export interface FormatOptions {
+  /** Maximum nesting depth when inspecting objects and arrays. @default 4 */
   depth?: number;
+  /** Maximum number of array items or object properties to inspect. @default 100 */
   maxArrayLength?: number;
+  /** Whether to emit ANSI color escape codes in the output. @default false */
   colors?: boolean;
 }
 
@@ -98,6 +104,16 @@ function inspectValue(value: unknown, options: FormatOptions, currentDepth: numb
   return String(value);
 }
 
+/**
+ * Format an array of log arguments into a single string.
+ *
+ * Strings are passed through unchanged; other values are inspected with
+ * configurable depth, length, and color via {@link FormatOptions}.
+ *
+ * @param args - Arguments passed to a log method.
+ * @param options - Inspection options.
+ * @returns The formatted string, or an empty string if `args` is empty.
+ */
 export function formatArgs(args: unknown[], options: FormatOptions = {}): string {
   if (args.length === 0) return '';
 
@@ -115,14 +131,28 @@ export function formatArgs(args: unknown[], options: FormatOptions = {}): string
     .join(' ');
 }
 
+/**
+ * Returns `true` when running in a Node.js environment.
+ */
 export function isNodeEnv(): boolean {
   return !!isNode;
 }
 
+/**
+ * Returns `true` when running in a browser environment (a `window` global exists).
+ */
 export function isBrowser(): boolean {
   return typeof window !== 'undefined';
 }
 
+/**
+ * Returns `true` when the current environment can render colored output.
+ *
+ * Browsers return `true` — DevTools renders CSS `%c` styling. Node returns
+ * `true` only when stdout is a TTY (an interactive terminal, not a pipe or
+ * file redirect where ANSI codes would pollute the output). Useful for
+ * opting into auto-off when piping: `new Logger({ colors: supportsColor() })`.
+ */
 export function supportsColor(): boolean {
   if (isBrowser()) {
     return true;
