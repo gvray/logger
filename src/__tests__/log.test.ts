@@ -10,6 +10,14 @@ import {
   errorStackMiddleware,
 } from '@/index';
 
+// Force the Node/ANSI output path. jsdom otherwise reports as a browser,
+// which would route output through the CSS %c branch and break the ANSI
+// assertions below. The browser branch is covered in log-css.test.ts.
+jest.mock('@/utils', () => ({
+  ...jest.requireActual('@/utils'),
+  isBrowser: () => false,
+}));
+
 describe('Logger', () => {
   let logSpy: jest.SpyInstance;
   let warnSpy: jest.SpyInstance;
@@ -27,7 +35,7 @@ describe('Logger', () => {
 
   describe('Basic Logging', () => {
     it('logs trace messages with gray color', () => {
-      const logger = new Logger({ level: LogLevel.TRACE });
+      const logger = new Logger({ level: LogLevel.TRACE, colors: true });
       logger.trace('Trace message');
       expect(logSpy).toHaveBeenCalled();
       const args = logSpy.mock.calls[0];
@@ -36,35 +44,35 @@ describe('Logger', () => {
     });
 
     it('logs debug messages with blue color', () => {
-      const logger = new Logger({ level: LogLevel.DEBUG });
+      const logger = new Logger({ level: LogLevel.DEBUG, colors: true });
       logger.debug('Debug message');
       expect(logSpy).toHaveBeenCalled();
       expect(logSpy.mock.calls[0][0]).toContain('\x1b[34m[DEBUG]');
     });
 
     it('logs info messages with green color', () => {
-      const logger = new Logger({ level: LogLevel.DEBUG });
+      const logger = new Logger({ level: LogLevel.DEBUG, colors: true });
       logger.info('Info message');
       expect(logSpy).toHaveBeenCalled();
       expect(logSpy.mock.calls[0][0]).toContain('\x1b[32m[INFO]');
     });
 
     it('logs warning messages with yellow color', () => {
-      const logger = new Logger({ level: LogLevel.DEBUG });
+      const logger = new Logger({ level: LogLevel.DEBUG, colors: true });
       logger.warning('Warning message');
       expect(warnSpy).toHaveBeenCalled();
       expect(warnSpy.mock.calls[0][0]).toContain('\x1b[33m[WARNING]');
     });
 
     it('logs error messages with red color', () => {
-      const logger = new Logger({ level: LogLevel.DEBUG });
+      const logger = new Logger({ level: LogLevel.DEBUG, colors: true });
       logger.error('Error message');
       expect(errorSpy).toHaveBeenCalled();
       expect(errorSpy.mock.calls[0][0]).toContain('\x1b[31m[ERROR]');
     });
 
     it('logs fatal messages with magenta color', () => {
-      const logger = new Logger({ level: LogLevel.DEBUG });
+      const logger = new Logger({ level: LogLevel.DEBUG, colors: true });
       logger.fatal('Fatal message');
       expect(errorSpy).toHaveBeenCalled();
       expect(errorSpy.mock.calls[0][0]).toContain('\x1b[35m[FATAL]');
@@ -401,8 +409,8 @@ describe('Logger', () => {
       const error = new Error('Test error');
       logger.error(error);
       const args = errorSpy.mock.calls[0];
-      expect(args[1]).toBeInstanceOf(Error);
-      expect(args[1].message).toBe('Test error');
+      expect(args[1]).toBe(error.stack);
+      expect(args[1]).toContain('Test error');
     });
   });
 
@@ -417,6 +425,51 @@ describe('Logger', () => {
       const logger = new Logger({ level: LogLevel.DEBUG });
       const result = logger.use((ctx, next) => next()).use((ctx, next) => next());
       expect(result).toBe(logger);
+    });
+  });
+
+  describe('LogContext purity', () => {
+    // isBrowser() is mocked false here, so this is the Node/ANSI path:
+    // console output carries ANSI codes, but ctx must stay color-free.
+    it('keeps ctx and formattedMessage free of ANSI even when colors are on', () => {
+      const captured: LogContext[] = [];
+      const logger = new Logger({
+        level: LogLevel.DEBUG,
+        colors: true,
+        timestamp: 'time',
+        namespace: 'api',
+      });
+      logger.addListener((ctx) => captured.push(ctx));
+      logger.info('hello', { id: 1 });
+
+      expect(captured).toHaveLength(1);
+      const ctx = captured[0];
+      expect(ctx.levelName).toBe('INFO');
+      expect(ctx.namespace).toBe('api');
+      expect(ctx.args).toEqual(['hello', { id: 1 }]);
+      expect(ctx.formattedMessage).toMatch(/^\[.*\] \[api\] \[INFO\] hello \{"id":1\}$/);
+      expect(ctx.formattedMessage).not.toContain('\x1b');
+      expect(ctx.formattedMessage).not.toContain('%c');
+    });
+
+    it('keeps formattedMessage plain when colors are off', () => {
+      const captured: LogContext[] = [];
+      const logger = new Logger({ level: LogLevel.DEBUG, colors: false });
+      logger.addListener((ctx) => captured.push(ctx));
+      logger.warning('no styling');
+      expect(captured[0].formattedMessage).not.toContain('\x1b');
+      expect(captured[0].formattedMessage).not.toContain('%c');
+    });
+
+    it('still fires listeners when args contain a circular reference', () => {
+      const captured: LogContext[] = [];
+      const logger = new Logger({ level: LogLevel.DEBUG });
+      logger.addListener((ctx) => captured.push(ctx));
+      const obj: Record<string, unknown> = { a: 1 };
+      obj.self = obj; // circular reference
+      expect(() => logger.info('circular', obj)).not.toThrow();
+      expect(captured).toHaveLength(1);
+      expect(captured[0].formattedMessage).toContain('[unserializable args]');
     });
   });
 });
