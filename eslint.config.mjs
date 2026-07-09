@@ -9,6 +9,7 @@ export default defineConfig([
       '**/dist/**',
       '**/build/**',
       '**/coverage/**',
+      '**/docs/**',
       '**/.next/**',
       '**/.nuxt/**',
       '**/.output/**',
